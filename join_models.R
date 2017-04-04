@@ -4,7 +4,9 @@
 
 
 library(sybil)
-source("./addMultiReact.R") # uses an extension of sybil to add several reactions at once
+if (! exists("addMultiReact") ){
+    source("./addMultiReact.R") # uses an extension of sybil to add several reactions at once
+}
 
 join_models <- function(mod1, mod2, id1="X", id2="Y"){
   ex1 <- grep("EX_", mod1@react_id)
