@@ -2,12 +2,15 @@
 get_coupling_constraints <- function(modj, id1="X", id2="Y"){
   coupling <- list(react=list(), x=list(), lb=vector(), ub=vector(), rtype=vector())
   intern_rea <- grep("EX_", modj@react_id, invert = T)
+  allObj <- which(modj@obj_coef!=0) # get objectives
+  obj1 <- allObj[grep(paste0("^",id1,"_"), react_id(modj)[allObj])]
+  obj2 <- allObj[grep(paste0("^",id2,"_"), react_id(modj)[allObj])]
   for(j in intern_rea){
     # get biomass for coupling
     if(length(grep(paste0("^",id1,"_"), modj@react_id[j])) > 0)
-      obj <- grep(paste0("^", id1, "_biomass"), modj@react_id)
+      obj <- obj1
     if(length(grep(paste0("^",id2,"_"), modj@react_id[j])) > 0)
-      obj <- grep(paste0("^", id2, "_biomass"), modj@react_id)
+      obj <- obj2
     reversible <- modj@lowbnd[j] < 0
     # add coupling backwards direction
     if(reversible) coupling <- add_coupling(coupling, react=c(j, obj), x=c(1,400), lb=0.01, ub=NA, rtype="L")
