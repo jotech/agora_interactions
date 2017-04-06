@@ -17,10 +17,15 @@ join_models <- function(mod1, mod2, id1="X", id2="Y"){
   for(x in ex){
     pos <- which(mod1@react_id %in% x)
     pos2<- which(mod2@react_id %in% x)
-    if(length(pos)>0) {
+    # add lower bounds only one time
+    if(length(pos)>0 & length(pos2)>0){ # exchange is in mod1 and mod2
       ex_met <- c(ex_met, mod1@met_id[which(mod1@S[,pos]!=0)])
-      ex_lb  <- c(ex_lb, mod1@lowbnd[pos]) # add lower bounds only one time
-    } else{
+      lb_min <- min(mod1@lowbnd[pos], mod1@lowbnd[pos])
+      ex_lb  <- c(ex_lb, lb_min)
+    } else if(length(pos)>0) { # exchange is only in mod1
+      ex_met <- c(ex_met, mod1@met_id[which(mod1@S[,pos]!=0)])
+      ex_lb  <- c(ex_lb, mod1@lowbnd[pos]) 
+    } else{ # exchange is only in mod2
       pos <- which(mod2@react_id %in% x)
       ex_met <- c(ex_met, mod2@met_id[which(mod2@S[,pos]!=0)])
       ex_lb  <- c(ex_lb, mod2@lowbnd[pos])
