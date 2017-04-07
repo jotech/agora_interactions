@@ -17,7 +17,7 @@ sybil::SYBIL_SETTINGS("SOLVER","cplexAPI"); ok <- 1
 # download of agora 1.0.1 constraint models from http://vmh.uni.lu
 agora <- readRDS("./agora_western-paper.RDS")
 names <- sapply(agora, function(x){x@mod_desc})
-comb <- combn(agora, 2)
+comb <- combn(names, 2)
 
 # determine single growth rate for each model
 single_growth <- sapply(agora, function(mod){
