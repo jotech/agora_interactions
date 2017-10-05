@@ -1,3 +1,4 @@
+source("./addMultiReact.R")
 #
 # Joins multiple metabolic models (imported into R with sybilSBML)
 #
