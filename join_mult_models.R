@@ -1,4 +1,4 @@
-source("./addMultiReact.R")
+#source("./addMultiReact.R")
 #
 # Joins multiple metabolic models (imported into R with sybilSBML)
 #
@@ -6,7 +6,7 @@ join_mult_models <- function(model.list) {
   require(data.table)
   n <- length(model.list)
   
-  model.IDs <- data.table(model.name = lapply(model.list,FUN = function(x) x@mod_desc),
+  model.IDs <- data.table(model.name = unlist(lapply(model.list,FUN = function(x) x@mod_desc)),
                           model.id = as.character(1:n))
   model.IDs$model.id <- paste0("M",model.IDs$model.id)
   
@@ -23,9 +23,11 @@ join_mult_models <- function(model.list) {
   ex.rxns[,model.name := NULL]
   setkey(ex.rxns,NULL)
   ex.rxns <- unique(ex.rxns)
-  if(any(duplicated(ex.rxns$react_id))) 
-    stop("unequal lower bounds for at least one exchange reaction.")
+  if(any(duplicated(ex.rxns$react_id))) {
+    stop(paste0("unequal lower bounds for at least one exchange reaction. "))
+  } 
   ex.rxns[,met := gsub("^EX_","",react_id)]
+  ex.rxns <- ex.rxns[met != "biomass(e)"]
   
   # rename reactions and metabolites
   cat("Renaming reaction-, metabolite, and compartment IDs...\n")
@@ -68,6 +70,8 @@ join_mult_models <- function(model.list) {
   # e.g. "M1_ac(e) <->"  ==> "M1_ac(e) <-> ac(e)" + removing lower bnd (new: -1000)
   cat("Modifying original exchange reactions to interact with new common \"e\" compartment...\n")
   r.ind <- grep("^M[0-9]+_EX_",modj@react_id)
+  tmp.ind <- grep("^M[0-9]+_EX_biomass",modj@react_id)
+  r.ind <- r.ind[!(r.ind %in% tmp.ind)]
   tmp.mets <- gsub("^M[0-9]+_EX_","",modj@react_id[r.ind])
   m.ind.e  <- match(tmp.mets, modj@met_id)
   modj@lowbnd[r.ind] <- rep(-1000,length(r.ind))
@@ -75,5 +79,6 @@ join_mult_models <- function(model.list) {
     modj@S[m.ind.e[i],r.ind[i]] <- 1
   
   return(list(model.IDs=model.IDs,
-              modj = modj))
+              modj = modj,
+              ex.rxns = ex.rxns))
 }

@@ -26,3 +26,10 @@ system.time({
 
 # What is exchanged between community members?
 get_metabolic_interchange(t.new$modj, solj1)
+
+
+
+## Fixed ratio community
+ag.r <- data.table(spec = names(agora)[sample(1:773,10)], ratio = rep(0.1,10))
+out <- simulate_agora_commmunity(agora, ag.r)
+get_metabolic_interchange(out$modj, out$solj)[1:50]

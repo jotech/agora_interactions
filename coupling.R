@@ -33,7 +33,8 @@ add_coupling <- function(coupling, react, x, lb, ub, rtype){
 get_coupling_constraints_mult <- function(modj) {
   coupling <- list(react=list(), x=list(), lb=vector(), ub=vector(), rtype=vector())
   intern_rea  <- grep("EX_", modj@react_id, invert = T)
-  allObj.ind  <- which(modj@obj_coef!=0)
+  #allObj.ind  <- which(modj@obj_coef!=0)
+  allObj.ind  <- grep("^M[0-9]+_biomass",modj@react_id)
   allObj.name <- react_id(modj)[allObj.ind]
   for(j in intern_rea){
     # get corresponding objective reaction for reaction j
