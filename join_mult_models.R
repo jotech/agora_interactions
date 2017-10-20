@@ -11,7 +11,7 @@ join_mult_models <- function(model.list) {
   model.IDs$model.id <- paste0("M",model.IDs$model.id)
   
   # get a table of all exchange reactions and their lower bounds
-  cat("Extracting all metabolite exchange (i.e. \"EX\") reactions...\n")
+  #cat("Extracting all metabolite exchange (i.e. \"EX\") reactions...\n")
   ex.rxns <- data.table(model.name = character(0L), react_id = character(0L), lb = double(0L))
   for(i in 1:n) {
     ex.ind <- grep("^EX_",model.list[[i]]@react_id)
@@ -30,7 +30,7 @@ join_mult_models <- function(model.list) {
   ex.rxns <- ex.rxns[met != "biomass(e)"]
   
   # rename reactions and metabolites
-  cat("Renaming reaction-, metabolite, and compartment IDs...\n")
+  #cat("Renaming reaction-, metabolite, and compartment IDs...\n")
   for(i in 1:n){
     model.list[[i]]@react_id    <- paste0(model.IDs$model.id[i],"_", model.list[[i]]@react_id)
     model.list[[i]]@met_id      <- paste0(model.IDs$model.id[i],"_", model.list[[i]]@met_id)
@@ -48,7 +48,7 @@ join_mult_models <- function(model.list) {
                    compartment = compNames)
   
   # add reactions from single models to joined/community model
-  cat("Adding reactions from individual species to joined/community model...\n")
+  #cat("Adding reactions from individual species to joined/community model...\n")
   for(i in 1:n) {
     cat(paste0("\r",i,"/",n))
     n.mets <- length(modj@met_comp)
@@ -59,7 +59,7 @@ join_mult_models <- function(model.list) {
   
   
   # add new external exchanges
-  cat("\rAdding new external exchanges...\n")
+  #cat("\rAdding new external exchanges...\n")
   mod_compart(modj) <- c(mod_compart(modj), "e")
   Nex <- nrow(ex.rxns)
   modj <- addMultiReact(model=modj, ids=ex.rxns$react_id, mets=ex.rxns$met, Scoefs = rep(-1, Nex), 
@@ -68,7 +68,7 @@ join_mult_models <- function(model.list) {
 
   # setting up original exchange interactions to interact with new common "e" compartment
   # e.g. "M1_ac(e) <->"  ==> "M1_ac(e) <-> ac(e)" + removing lower bnd (new: -1000)
-  cat("Modifying original exchange reactions to interact with new common \"e\" compartment...\n")
+  #cat("Modifying original exchange reactions to interact with new common \"e\" compartment...\n")
   r.ind <- grep("^M[0-9]+_EX_",modj@react_id)
   tmp.ind <- grep("^M[0-9]+_EX_biomass",modj@react_id)
   r.ind <- r.ind[!(r.ind %in% tmp.ind)]
