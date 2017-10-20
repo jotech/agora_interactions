@@ -6,7 +6,7 @@
 # simulate the growth of an AGORA-Community with fixed biomass ratios between community members
 # spec.ratio - A data.frame or data.table with two coloums: 1. spec (Agora model name), 2. ratio
 #
-simulate_agora_commmunity <- function(agora.list,spec.ratio) {
+simulate_agora_commmunity <- function(agora.list, spec.ratio, pFBAcoeff = 1e-6) {
   require(data.table)
   
   ind <- which(names(agora.list) %in% spec.ratio$spec)
@@ -25,13 +25,16 @@ simulate_agora_commmunity <- function(agora.list,spec.ratio) {
                              reactName = "joined Biomass with fixed ratios")
   ag.joined$modj@obj_coef <- rep(0, length(ag.joined$modj@react_id))
   ag.joined$modj@obj_coef[grep("EX_BIOMASS", ag.joined$modj@react_id)] <- 1
+  # block individual Biomass outflow reactions
+  ag.joined$modj@uppbnd[grep("M[0-9]+_EX_biomass",ag.joined$modj@react_id)] <- 0
   
   # Perform Optimization
   cat("Getting coupling constraints...\n")
   coupling <- get_coupling_constraints_mult(ag.joined$modj)
   
   cat("Applying coupling constraints...\n")
-  modj_warm <- sysBiolAlg(ag.joined$modj, algorithm = "mtfEasyConstraint", easyConstraint=coupling)
+  #modj_warm <- sysBiolAlg(ag.joined$modj, algorithm = "mtfEasyConstraint", easyConstraint=coupling)
+  modj_warm <- sysBiolAlg(ag.joined$modj, algorithm = "mtfEasyConstraint2", easyConstraint=coupling, pFBAcoeff = pFBAcoeff)
   
   cat("Performing pFBA...\n")
   solj1 <- optimizeProb(modj_warm)
